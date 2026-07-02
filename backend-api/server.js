@@ -1,17 +1,28 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes.js';
+import { connectMongoDB, connectSQL } from './config/db.js';
 
+dotenv.config();
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/status', (req, res) => {
-    res.json({ status: "success", message: "Node.js API Engine is active!" });
-});
+// API Routes
+app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Backend server successfully started on port ${PORT}`);
-});
+
+
+const startServer = async () => {
+  await connectSQL();
+  await connectMongoDB();
+  
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend Server is running on http://localhost:${PORT}`);
+  });
+};
+
+startServer();
